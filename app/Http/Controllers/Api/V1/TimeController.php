@@ -9,7 +9,7 @@ use App\Models\User;
 
 class TimeController extends Controller
 {
-    // Listado de todos los tiempos
+    // Listado de t.odos los tiempos
     public function index()
     {
         // return 'hola mundo';
@@ -71,11 +71,13 @@ class TimeController extends Controller
     }
 
     // Método para pausar la jornada
+    // ******* FALTA AÑADIR LOS MOTIVOS DE LAS PAUSAS *******
     public function pause(Request $request)
     {
         // Vamos a validar la petición
         $request->validate([
             'code' => 'required|exists:users,code',
+            'pause_reason' => 'required'
         ]);
 
         // Vamos a recuperar al usuario que corresponde al código
@@ -110,6 +112,7 @@ class TimeController extends Controller
         $time->datetime = now();
         $time->time = now()->format('H:i:s');
         $time->date = now()->format('Y-m-d');
+        $time->pause_reason = $request->pause_reason;
         $time->save();
 
         return response()->json(['message' => 'Jornada pausada'], 200);
