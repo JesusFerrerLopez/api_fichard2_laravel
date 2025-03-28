@@ -71,7 +71,6 @@ class TimeController extends Controller
     }
 
     // Método para pausar la jornada
-    // ******* FALTA AÑADIR LOS MOTIVOS DE LAS PAUSAS *******
     public function pause(Request $request)
     {
         // Vamos a validar la petición
@@ -162,5 +161,30 @@ class TimeController extends Controller
         $time->save();
 
         return response()->json(['message' => 'Jornada finalizada'], 200);
+    }
+
+    // Método que devuelve un resumen de las jornadas de un usuario según fechas
+    public function resumen(Request $request) {
+        // validamos la información recibida
+        $request->validate([
+            'code' => 'required|exists:users,code',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+        ]);
+
+        // Vamos a recuperar al usuario que corresponde al código
+        $user = User::where('code', $request->code)->first();
+
+        // Vamos a recuperar las jornadas del usuario en el rango de fechas
+        $times = Time::where('user_id', $user->id)
+            ->where('date', '>=', $request->start_date)
+            ->where('date', '<=', $request->end_date)
+            ->orderBy('date', 'asc')
+            ->get();
+
+        // Devolvemos la información
+        return response()->json([
+            'times' => $times,
+        ]);
     }
 }
