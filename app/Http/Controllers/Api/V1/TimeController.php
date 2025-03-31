@@ -173,13 +173,16 @@ class TimeController extends Controller
         ]);
 
         // Vamos a recuperar al usuario que corresponde al código
-        $user = User::where('code', $request->code)->first();
+        $user = User::where('code', $request->code)
+            ->where('company_id', 1)
+            ->first();
 
         // Vamos a recuperar las jornadas del usuario en el rango de fechas
         $times = Time::where('user_id', $user->id)
             ->where('date', '>=', $request->start_date)
             ->where('date', '<=', $request->end_date)
             ->orderBy('date', 'asc')
+            ->select(['datetime', 'type'])
             ->get();
 
         // Devolvemos la información
