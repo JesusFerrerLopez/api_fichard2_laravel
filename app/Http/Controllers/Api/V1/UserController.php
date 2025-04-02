@@ -18,6 +18,50 @@ class UserController extends Controller
     }
 
     /**
+     * Actualiza la información de un usuario.
+     * 
+     * @param request Petición recibida del cliente.
+     * @returns Mensaje json de error si no se encuentra un usuario.
+     * @returns La información del usuario si se encuentra.
+     */
+    public function update(Request $request)
+    {
+        $user = $this->validateCode($request);
+
+        $user->update([
+            'name' => $request->name,
+            'code' => $request->new_code
+        ]);
+        $user->save();
+        return response()->json([
+            'message' => 'Usuario actualizado correctamente',
+            'user' => $user
+        ]);
+    }
+
+    /**
+     * Elimina un usuario.
+     * 
+     * @param request Petición recibida del cliente.
+     * @returns Mensaje json de error si no se encuentra un usuario.
+     * @returns Mensaje json de éxito si se elimina el usuario.
+     */
+    public function destroy(Request $request)
+    {
+        return response()->json([
+            'message' => 'La eliminación de usuarios no está disponible en este momento'
+        ], 403);
+        // ESTO FUNCIONA, SOLO ESTÁ COMENTADO PARA EVITAR PROBLEMAS
+        // $user = $this->validateCode($request);
+
+        // $user->delete();
+
+        // return response()->json([
+        //     'message' => 'Usuario eliminado correctamente'
+        // ]);
+    }
+
+    /**
      * Valida el código recibido desde la petición del cliente.
      * 
      * @param request Petición recibida del cliente.
@@ -33,7 +77,6 @@ class UserController extends Controller
         $user = User::where('code', $request->code)
             ->where('company_id', $company)
             ->first();
-
         // Si no existe el código, devolvemos un mensaje de error
         if (!$user) {
             abort(response()->json([
@@ -44,4 +87,27 @@ class UserController extends Controller
         // Si existe el código, devolvemos la información del usuario
         return $user;
     }
+
+    /**
+     * Retorna un json de todos los usuarios de la compañia logeada 
+     * junto a su último registro en la tabla times
+     * 
+     * @param request Petición recibida del cliente.
+     * @returns Información de todos los usuarios de la compañia logeada.
+     */
+    public function index(Request $request) 
+    {
+        $company = $request->user()->id;
+
+        $users = User::where('company_id', $company)
+            ->where('status', 'enabled')
+            ->with('lastAction')
+            ->get();
+
+        return response()->json([
+            'users' => $users
+        ]);
+    }
+
+
 }

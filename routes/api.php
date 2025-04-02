@@ -28,6 +28,11 @@ Route::prefix('v1')->group(function () {
         // Rutas de usuario
         // Ruta que recibe código y retorna un usuario
         Route::get('user', [UserController::class, 'show']); 
+        Route::patch('user', [UserController::class, 'update']);
+        Route::delete('user', [UserController::class, 'destroy']);
+
+        // Ruta que  maneja las peticiones relacionadas con varios usuarios
+        Route::get('users', [UserController::class, 'index']);
     });
 
     // Ruta de login
